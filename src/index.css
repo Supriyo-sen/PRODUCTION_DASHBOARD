@@ -16,8 +16,13 @@
     rgba(255, 255, 255, 0)
   );
   --grid-gap: 1.1rem;
-}
 
+  /* safe area for notched devices */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
 :root[data-theme="light"] {
   --bg: #f6f8fb;
   --bg-elev: #ffffff;
@@ -45,7 +50,6 @@ body,
 #root {
   height: 100%;
 }
-
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
@@ -63,6 +67,7 @@ body {
     ),
     var(--bg);
   transition: background-color 220ms ease, color 220ms ease;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
 }
 
 /* Focus for keyboard users */
@@ -128,17 +133,6 @@ body {
   gap: var(--grid-gap);
 }
 
-@media (max-width: 980px) {
-  .dashboard__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 520px) {
-  .dashboard__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ========= THEME TOGGLE ========= */
 .theme-toggle {
   position: relative;
@@ -192,7 +186,6 @@ body {
   display: grid;
   place-items: stretch;
 }
-
 .card:hover {
   transform: translateY(-5px) scale(1.02);
   border-color: color-mix(in oklab, var(--card-border) 50%, var(--accent));
@@ -200,7 +193,6 @@ body {
     inset 0 0 15px rgba(255, 255, 255, 0.2);
   background: linear-gradient(145deg, var(--accent), var(--accent-2));
 }
-
 .card__shine {
   content: "";
   position: absolute;
@@ -215,7 +207,6 @@ body {
   transform: translateX(0%);
   opacity: 1;
 }
-
 .card__content {
   position: relative;
   padding: 22px;
@@ -240,7 +231,6 @@ body {
   font-size: 0.95rem;
   color: var(--muted);
 }
-
 .card::before {
   content: "";
   position: absolute;
@@ -283,13 +273,10 @@ body {
 /* =================================================================
    ============== SECTION VIEW (TABLE + PIE CHART) ==================
    ================================================================= */
-
-/* Section container */
 .section {
   padding: clamp(14px, 2vw, 28px);
 }
 
-/* Top toolbar (Back + Title) */
 .section__toolbar {
   display: flex;
   align-items: center;
@@ -301,7 +288,7 @@ body {
   border: 1px solid var(--card-border);
   background: var(--bg-elev);
   color: var(--text);
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: var(--shadow);
@@ -354,21 +341,16 @@ body {
   grid-template-columns: 1.1fr 1fr;
   gap: var(--grid-gap);
 }
-@media (max-width: 980px) {
-  .split {
-    grid-template-columns: 1fr;
-  }
-}
-
 .panel__title {
   margin: 6px 0 10px;
   color: var(--muted);
   font-weight: 600;
 }
 
-/* Table styles */
+/* Table */
 .table-wrap {
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--card-border);
   border-radius: 14px;
   background: var(--bg-elev);
@@ -377,11 +359,12 @@ body {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 680px;
+  min-width: 680px; /* will be lowered on small screens */
 }
 .table thead th {
   position: sticky;
   top: 0;
+  z-index: 1;
   background: var(--bg-elev);
   color: var(--text);
   padding: 10px;
@@ -410,7 +393,7 @@ body {
   padding: 18px;
 }
 
-/* Chart canvas wrapper */
+/* Chart */
 .chart-wrap {
   border: 1px solid var(--card-border);
   border-radius: 14px;
@@ -425,7 +408,7 @@ body {
   display: block;
 }
 
-/* Optional: slim scrollbars */
+/* Scrollbars */
 *::-webkit-scrollbar {
   height: 10px;
   width: 10px;
@@ -436,4 +419,150 @@ body {
 }
 *::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* =================================================================
+   ============== RESPONSIVE ENHANCEMENTS ===========================
+   ================================================================= */
+
+/* Large tablets / small laptops */
+@media (max-width: 1200px) {
+  .dashboard__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .dashboard__header {
+    padding: 18px clamp(12px, 2vw, 22px);
+  }
+  .dashboard__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .split {
+    grid-template-columns: 1fr;
+  } /* stack table & chart */
+  .chart-wrap {
+    padding: 10px;
+  }
+  .table {
+    min-width: 600px;
+  }
+}
+
+/* Mobile (landscape & portrait) */
+@media (max-width: 768px) {
+  .dashboard__header {
+    padding: 14px 14px;
+  }
+  .brand {
+    gap: 10px;
+  }
+  .dashboard__subtitle {
+    margin: 0 14px;
+    font-size: 0.94rem;
+  }
+
+  .dashboard__grid {
+    padding: 14px;
+    grid-template-columns: 1fr; /* single column cards */
+    gap: 0.9rem;
+  }
+
+  .card {
+    border-radius: 16px;
+  }
+  .card__content {
+    padding: 18px;
+  }
+  .card__emoji {
+    font-size: 1.6rem;
+  }
+
+  .section {
+    padding: 14px;
+  }
+  .section__toolbar {
+    padding: 0 8px 10px;
+  }
+  .back-btn {
+    padding: 10px 12px;
+  }
+
+  .filters {
+    gap: 10px;
+  }
+  .filters label {
+    width: 100%;
+  } /* dates full-width on small screens */
+  .filters input[type="date"] {
+    width: 100%;
+  }
+
+  .table {
+    min-width: 520px;
+  } /* easier horizontal scroll */
+  .chart-wrap {
+    padding: 10px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 560px) {
+  .dashboard__title {
+    font-size: clamp(1.05rem, 3.4vw + 0.9rem, 1.5rem);
+  }
+  .dashboard__subtitle {
+    font-size: 0.92rem;
+  }
+
+  .card {
+    min-height: 92px;
+  }
+  .card__label {
+    font-size: 1.05rem;
+  }
+
+  .table {
+    min-width: 440px;
+  }
+  .table thead th,
+  .table tbody td {
+    padding: 8px;
+  }
+
+  .chart-wrap {
+    padding: 8px;
+  }
+  .chart-wrap canvas {
+    max-height: 320px;
+  } /* prevent giant canvas on tiny screens */
+}
+
+/* Extra-small phones */
+@media (max-width: 400px) {
+  .dashboard__header {
+    padding: 12px;
+  }
+  .dashboard__subtitle {
+    display: none;
+  } /* save space */
+  .theme-toggle {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .table {
+    min-width: 380px;
+  }
+}
+
+/* Better motion for battery-saver / a11y */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .theme-toggle,
+  .card__shine,
+  .back-btn {
+    transition: none !important;
+  }
 }
