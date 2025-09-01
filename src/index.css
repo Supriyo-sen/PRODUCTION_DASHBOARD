@@ -566,3 +566,47 @@ body {
     transition: none !important;
   }
 }
+
+/* ========== Charts grid responsive ========== */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr; /* stack charts */
+  }
+  .chart-wrap {
+    padding: 10px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .charts-grid {
+    gap: 1rem;
+  }
+  .chart-wrap canvas {
+    max-height: 280px; /* smaller pie on phones */
+  }
+  .panel__title {
+    font-size: 0.95rem;
+  }
+}
+
+/* Extra-small phones */
+@media (max-width: 480px) {
+  .charts-grid {
+    margin-top: 1.2rem;
+  }
+  .chart-wrap {
+    padding: 6px;
+  }
+  .chart-wrap canvas {
+    max-height: 220px;
+  }
+}

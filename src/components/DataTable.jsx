@@ -7,35 +7,45 @@ export default function DataTable({ rows = [] }) {
         <thead>
           <tr>
             <th>Date</th>
-            <th>Machine</th>
-            <th>Total Target</th>
-            <th>Total Actual</th>
-            <th>Less or Extra (E)</th>
-            <th>% (F)</th>
+            <th>Machine No.</th>
+            <th>Shift</th>
+            <th>Target</th>
+            <th>Actual</th>
+            <th>Loss / Profit</th>
+            <th>Loss / Profit (%)</th>
+            <th>Items</th>
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan="6" className="empty">
+              <td colSpan="8" className="empty">
                 No data
               </td>
             </tr>
           ) : (
-            rows.map((r, i) => (
-              <tr key={i}>
-                <td>{r.date}</td>
-                <td>{r.machine}</td>
-                <td>{r.totalTarget.toLocaleString()}</td>
-                <td>{r.totalActual.toLocaleString()}</td>
-                <td className={r.extraLess >= 0 ? "pos" : "neg"}>
-                  {r.extraLess.toLocaleString()}
-                </td>
-                <td className={r.percent >= 0 ? "pos" : "neg"}>
-                  {(r.percent * 100).toFixed(2)}%
-                </td>
-              </tr>
-            ))
+            rows.map((r, i) => {
+              const diff = r.totalActual - r.totalTarget;
+              const percent =
+                r.totalTarget > 0
+                  ? ((diff / r.totalTarget) * 100).toFixed(2)
+                  : 0;
+
+              return (
+                <tr key={i}>
+                  <td>{r.date}</td>
+                  <td>{r.machine}</td>
+                  <td>{r.shift || ""}</td>
+                  <td>{r.totalTarget.toLocaleString()}</td>
+                  <td>{r.totalActual.toLocaleString()}</td>
+                  <td className={diff >= 0 ? "pos" : "neg"}>
+                    {diff.toLocaleString()}
+                  </td>
+                  <td className={percent >= 0 ? "pos" : "neg"}>{percent}%</td>
+                  <td>{r.items || ""}</td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

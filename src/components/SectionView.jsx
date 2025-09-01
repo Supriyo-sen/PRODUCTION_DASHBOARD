@@ -6,14 +6,15 @@ export default function SectionView({ title, emoji, rowsByDate, onBack }) {
   const allDates = useMemo(() => Object.keys(rowsByDate).sort(), [rowsByDate]);
   const defaultDate = allDates[allDates.length - 1] || "";
 
-  const [tableDate, setTableDate] = useState(defaultDate);
-  const [chartDate, setChartDate] = useState(defaultDate);
+  const [date, setDate] = useState(defaultDate);
 
-  const tableRows = rowsByDate[tableDate] || [];
-  const chartRows = rowsByDate[chartDate] || [];
+  const rows = rowsByDate[date] || [];
+  const rowsA = rows.filter((r) => String(r.shift).toUpperCase() === "A");
+  const rowsB = rows.filter((r) => String(r.shift).toUpperCase() === "B");
 
   return (
     <section className="section">
+      {/* toolbar */}
       <div className="section__toolbar">
         <button className="back-btn" onClick={onBack}>
           ← Back
@@ -24,27 +25,17 @@ export default function SectionView({ title, emoji, rowsByDate, onBack }) {
         </div>
       </div>
 
+      {/* date filter */}
       <div className="filters">
         <label>
-          Table date:&nbsp;
+          Select date:&nbsp;
           <input
             type="date"
-            value={tableDate}
-            onChange={(e) => setTableDate(e.target.value)}
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             list="dates-list"
           />
         </label>
-        <label>
-          Pie chart date:&nbsp;
-          <input
-            type="date"
-            value={chartDate}
-            onChange={(e) => setChartDate(e.target.value)}
-            list="dates-list"
-          />
-        </label>
-
-        {/* helper datalist for available dates */}
         <datalist id="dates-list">
           {allDates.map((d) => (
             <option key={d} value={d} />
@@ -52,14 +43,24 @@ export default function SectionView({ title, emoji, rowsByDate, onBack }) {
         </datalist>
       </div>
 
-      <div className="split">
-        <div className="split__left">
-          <h3 className="panel__title">Table</h3>
-          <DataTable rows={tableRows} />
+      {/* table */}
+      <h3 className="panel__title">Production Table</h3>
+      <DataTable rows={rows} />
+
+      {/* two pie charts side by side */}
+      <div className="charts-grid">
+        <div>
+          <h3 className="panel__title">Shift A</h3>
+          <div className="chart-wrap">
+            <PieChart rows={rowsA} width={460} height={380} />
+          </div>
         </div>
-        <div className="split__right">
-          <h3 className="panel__title">Pie Chart (by |LESS/EXTRA|)</h3>
-          <PieChart rows={chartRows} width={520} height={520} />
+
+        <div>
+          <h3 className="panel__title">Shift B</h3>
+          <div className="chart-wrap">
+            <PieChart rows={rowsB} width={460} height={380} />
+          </div>
         </div>
       </div>
     </section>
