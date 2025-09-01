@@ -8,9 +8,20 @@ export default function SectionView({ title, emoji, rowsByDate, onBack }) {
 
   const [date, setDate] = useState(defaultDate);
 
+  // rows for selected date
   const rows = rowsByDate[date] || [];
+
+  // split into shifts
   const rowsA = rows.filter((r) => String(r.shift).toUpperCase() === "A");
   const rowsB = rows.filter((r) => String(r.shift).toUpperCase() === "B");
+
+  // interleave A and B → ABABAB style
+  const interleavedRows = [];
+  const maxLen = Math.max(rowsA.length, rowsB.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (rowsA[i]) interleavedRows.push(rowsA[i]);
+    if (rowsB[i]) interleavedRows.push(rowsB[i]);
+  }
 
   return (
     <section className="section">
@@ -44,10 +55,10 @@ export default function SectionView({ title, emoji, rowsByDate, onBack }) {
       </div>
 
       {/* table */}
-      <h3 className="panel__title">Production Table</h3>
-      <DataTable rows={rows} />
+      <h3 className="panel__title">Production Table (Shift-wise AB)</h3>
+      <DataTable rows={interleavedRows} />
 
-      {/* two pie charts side by side */}
+      {/* pie charts side by side */}
       <div className="charts-grid">
         <div>
           <h3 className="panel__title">Shift A</h3>
