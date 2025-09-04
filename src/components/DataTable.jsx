@@ -1,3 +1,4 @@
+// DataTable.jsx
 import React from "react";
 
 export default function DataTable({ rows = [] }) {
@@ -27,21 +28,21 @@ export default function DataTable({ rows = [] }) {
             rows.map((r, i) => {
               const diff = r.totalActual - r.totalTarget;
               const percent =
-                r.totalTarget > 0
-                  ? ((diff / r.totalTarget) * 100).toFixed(2)
-                  : 0;
+                r.totalTarget > 0 ? (diff / r.totalTarget) * 100 : 0;
 
               return (
                 <tr key={i}>
                   <td>{r.date}</td>
                   <td>{r.machine}</td>
                   <td>{r.shift || ""}</td>
-                  <td>{r.totalTarget.toLocaleString()}</td>
-                  <td>{r.totalActual.toLocaleString()}</td>
+                  <td>{Number(r.totalTarget).toLocaleString()}</td>
+                  <td>{Number(r.totalActual).toLocaleString()}</td>
                   <td className={diff >= 0 ? "pos" : "neg"}>
                     {diff.toLocaleString()}
                   </td>
-                  <td className={percent >= 0 ? "pos" : "neg"}>{percent}%</td>
+                  <td className={percent >= 0 ? "pos" : "neg"}>
+                    {percent.toFixed(2)}%
+                  </td>
                   <td>{r.items || ""}</td>
                 </tr>
               );

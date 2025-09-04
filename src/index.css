@@ -1,5 +1,8 @@
-/* ========= THEME TOKENS ========= */
+/* ================================================================
+   THEME TOKENS
+   ================================================================= */
 :root {
+  /* Base palette (dark) */
   --bg: #0b0f17;
   --bg-elev: #0f1623;
   --text: #e6edf3;
@@ -9,20 +12,28 @@
   --accent: #4f8cff;
   --accent-2: #22d3ee;
   --ring: #74a2ff;
+
+  /* FX */
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --shine: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0.06),
     rgba(255, 255, 255, 0)
   );
+
+  /* Rhythm */
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
   --grid-gap: 1.1rem;
 
-  /* safe area for notched devices */
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
+  /* Safe areas */
+  --safe-top: env(safe-area-inset-top);
+  --safe-right: env(safe-area-inset-right);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
 }
+
 :root[data-theme="light"] {
   --bg: #f6f8fb;
   --bg-elev: #ffffff;
@@ -41,7 +52,21 @@
   );
 }
 
-/* ========= BASE ========= */
+/* Auto-theme fallback for system preference */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
+
+/* ================================================================
+   BASE
+   ================================================================= */
 * {
   box-sizing: border-box;
 }
@@ -70,28 +95,52 @@ body {
   padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
 }
 
-/* Focus for keyboard users */
-:where(button):focus-visible {
+/* Better focus */
+:where(a, button, [role="button"], input, select) {
+  outline: none;
+}
+:where(a, button, [role="button"], input, select):focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
-/* ========= LAYOUT ========= */
+/* Scrollbars (WebKit) */
+*::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #3a4a66;
+  border-radius: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ================================================================
+   LAYOUT
+   ================================================================= */
 .dashboard {
   min-height: 100%;
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 0.25rem;
 }
-
 .dashboard__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 22px clamp(14px, 2vw, 28px);
 }
-
 .brand {
   display: flex;
   align-items: center;
@@ -109,21 +158,18 @@ body {
     var(--accent);
   box-shadow: 0 0 18px rgba(79, 140, 255, 0.6);
 }
-
 .dashboard__title {
   margin: 0;
   letter-spacing: 0.4px;
   font-weight: 800;
   font-size: clamp(1.1rem, 1.6vw + 1rem, 2rem);
 }
-
 .dashboard__subtitle {
   margin: 0 clamp(14px, 2vw, 28px);
   margin-top: -6px;
   color: var(--muted);
   font-size: 0.98rem;
 }
-
 .dashboard__grid {
   padding: clamp(14px, 2vw, 28px);
   margin: 0 auto;
@@ -133,7 +179,9 @@ body {
   gap: var(--grid-gap);
 }
 
-/* ========= THEME TOGGLE ========= */
+/* ================================================================
+   THEME TOGGLE
+   ================================================================= */
 .theme-toggle {
   position: relative;
   display: inline-flex;
@@ -151,7 +199,7 @@ body {
 }
 .theme-toggle:hover {
   transform: translateY(-1px);
-  border-color: color-mix(in oklab, var(--card-border) 60%, var(--accent));
+  border-color: #3a4a66;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
 }
 .theme-toggle__icon {
@@ -170,14 +218,16 @@ body {
   box-shadow: 0 0 12px rgba(79, 140, 255, 0.7);
 }
 
-/* ========= CARD ========= */
+/* ================================================================
+   CARD
+   ================================================================= */
 .card {
   position: relative;
   border: 1px solid var(--card-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(145deg, var(--card), var(--bg-elev));
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
-    inset 0 0 10px rgba(255, 255, 255, 0.1);
+    inset 0 0 10px rgba(255, 255, 255, 0.08);
   cursor: pointer;
   overflow: hidden;
   transition: transform 200ms ease, border-color 200ms ease,
@@ -188,7 +238,7 @@ body {
 }
 .card:hover {
   transform: translateY(-5px) scale(1.02);
-  border-color: color-mix(in oklab, var(--card-border) 50%, var(--accent));
+  border-color: #3a4a66;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
     inset 0 0 15px rgba(255, 255, 255, 0.2);
   background: linear-gradient(145deg, var(--accent), var(--accent-2));
@@ -235,7 +285,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   padding: 1px;
   background: linear-gradient(
     120deg,
@@ -255,28 +305,29 @@ body {
   opacity: 1;
 }
 
-/* ========= FOOTER ========= */
+/* ================================================================
+   FOOTER
+   ================================================================= */
 .dashboard__footer {
   padding: 16px;
   text-align: center;
   color: var(--muted);
 }
 
-/* ========= HIGH-DPI POLISH ========= */
+/* Hi-DPI */
 @media (min-resolution: 2dppx) {
   .card,
   .theme-toggle {
-    border-color: color-mix(in oklab, var(--card-border) 85%, #ffffff);
+    border-color: #d0d8e6;
   }
 }
 
-/* =================================================================
-   ============== SECTION VIEW (TABLE + PIE CHART) ==================
+/* ================================================================
+   SECTION (TABLE + CHART)
    ================================================================= */
 .section {
   padding: clamp(14px, 2vw, 28px);
 }
-
 .section__toolbar {
   display: flex;
   align-items: center;
@@ -289,7 +340,7 @@ body {
   background: var(--bg-elev);
   color: var(--text);
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: transform 140ms ease, border-color 140ms ease,
@@ -297,7 +348,7 @@ body {
 }
 .back-btn:hover {
   transform: translateY(-1px);
-  border-color: color-mix(in oklab, var(--card-border) 60%, var(--accent));
+  border-color: #3a4a66;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
 }
 
@@ -313,7 +364,6 @@ body {
   font-size: 1.25rem;
 }
 
-/* Filters row */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -327,15 +377,15 @@ body {
   align-items: center;
   gap: 6px;
 }
-.filters input[type="date"] {
+.filters input[type="date"],
+.filters select {
   background: var(--bg-elev);
   color: var(--text);
   border: 1px solid var(--card-border);
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
-/* Two-column split */
 .split {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
@@ -347,21 +397,30 @@ body {
   font-weight: 600;
 }
 
-/* Table */
-.table-wrap {
+/* ================================================================
+   TABLE (generic)
+   ================================================================= */
+.table-wrap,
+.matrix-scroll,
+.perf-table-wrap {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--card-border);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--bg-elev);
 }
-.table {
+.table,
+.matrix-table,
+.perf-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 680px; /* will be lowered on small screens */
+  min-width: 640px;
+  font-size: 0.95rem;
 }
-.table thead th {
+.table thead th,
+.matrix-table thead th,
+.perf-table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -372,31 +431,51 @@ body {
   border-bottom: 1px solid var(--card-border);
   font-weight: 700;
 }
-.table tbody td {
+.table tbody td,
+.matrix-table td,
+.perf-table td {
   padding: 10px;
   border-bottom: 1px solid var(--card-border);
+  white-space: nowrap;
 }
-.table tbody tr:hover {
+.table tbody tr:hover,
+.matrix-table tbody tr:hover,
+.perf-table tbody tr:hover {
   background: rgba(148, 163, 184, 0.06);
 }
-.table .pos {
+
+/* Positive/Negative */
+.pos {
   color: #22c55e;
   font-weight: 600;
 }
-.table .neg {
+.neg {
   color: #ef4444;
   font-weight: 600;
 }
+
 .table .empty {
   text-align: center;
   color: var(--muted);
   padding: 18px;
 }
 
-/* Chart */
+/* Group headers in matrix */
+.matrix-table .group-head {
+  background: var(--bg-elev);
+  font-weight: 700;
+}
+.sticky-col {
+  position: sticky;
+  left: 0;
+  background: var(--bg-elev);
+  z-index: 2;
+}
+
+/* Chart container */
 .chart-wrap {
   border: 1px solid var(--card-border);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--bg-elev);
   display: grid;
   place-items: center;
@@ -408,31 +487,61 @@ body {
   display: block;
 }
 
-/* Scrollbars */
-*::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
-}
-*::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--card-border) 40%, var(--accent));
-  border-radius: 10px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
+/* ================================================================
+   CHARTS GRID
+   ================================================================= */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-/* =================================================================
-   ============== RESPONSIVE ENHANCEMENTS ===========================
+/* ================================================================
+   PERFORMANCE CONTROLS
+   ================================================================= */
+.matrix-range {
+  margin-top: 16px;
+}
+.matrix-range-controls,
+.perf-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 8px 0 10px;
+}
+.perf-window {
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+/* Specific perf table numeric alignment */
+.perf-table th {
+  text-align: center;
+}
+.perf-table td:nth-child(1) {
+  text-align: center;
+  width: 72px;
+}
+.perf-table td:nth-child(3),
+.perf-table td:nth-child(4),
+.perf-table td:nth-child(5) {
+  text-align: center;
+}
+
+/* ================================================================
+   RESPONSIVE
    ================================================================= */
 
-/* Large tablets / small laptops */
+/* ≥1200: desktop grid already optimal */
 @media (max-width: 1200px) {
   .dashboard__grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Tablets */
+/* ≤1024: tablets / small laptops */
 @media (max-width: 1024px) {
   .dashboard__header {
     padding: 18px clamp(12px, 2vw, 22px);
@@ -446,12 +555,17 @@ body {
   .chart-wrap {
     padding: 10px;
   }
-  .table {
+  .table,
+  .matrix-table,
+  .perf-table {
     min-width: 600px;
   }
+  .charts-grid {
+    grid-template-columns: 1fr;
+  } /* stack charts */
 }
 
-/* Mobile (landscape & portrait) */
+/* ≤768: mobile landscape & portrait */
 @media (max-width: 768px) {
   .dashboard__header {
     padding: 14px 14px;
@@ -466,7 +580,7 @@ body {
 
   .dashboard__grid {
     padding: 14px;
-    grid-template-columns: 1fr; /* single column cards */
+    grid-template-columns: 1fr;
     gap: 0.9rem;
   }
 
@@ -495,20 +609,53 @@ body {
   }
   .filters label {
     width: 100%;
-  } /* dates full-width on small screens */
-  .filters input[type="date"] {
+  }
+  .filters input[type="date"],
+  .filters select {
     width: 100%;
   }
 
-  .table {
+  .table,
+  .matrix-table,
+  .perf-table {
     min-width: 520px;
-  } /* easier horizontal scroll */
-  .chart-wrap {
-    padding: 10px;
+  }
+  .charts-grid {
+    gap: 1rem;
+  }
+  .chart-wrap canvas {
+    max-height: 280px;
+  }
+  .panel__title {
+    font-size: 0.95rem;
   }
 }
 
-/* Small phones */
+/* ≤640: small mobiles */
+@media (max-width: 640px) {
+  .matrix-range-controls,
+  .perf-controls {
+    gap: 8px;
+  }
+  .matrix-table,
+  .perf-table {
+    font-size: 0.85rem;
+  }
+  .matrix-table th,
+  .matrix-table td,
+  .perf-table th,
+  .perf-table td {
+    padding: 6px 6px;
+  }
+  .sticky-col {
+    min-width: 110px;
+  }
+  .perf-table {
+    min-width: 480px;
+  }
+}
+
+/* ≤560: extra small */
 @media (max-width: 560px) {
   .dashboard__title {
     font-size: clamp(1.05rem, 3.4vw + 0.9rem, 1.5rem);
@@ -516,14 +663,12 @@ body {
   .dashboard__subtitle {
     font-size: 0.92rem;
   }
-
   .card {
     min-height: 92px;
   }
   .card__label {
     font-size: 1.05rem;
   }
-
   .table {
     min-width: 440px;
   }
@@ -531,74 +676,15 @@ body {
   .table tbody td {
     padding: 8px;
   }
-
   .chart-wrap {
     padding: 8px;
   }
   .chart-wrap canvas {
     max-height: 320px;
-  } /* prevent giant canvas on tiny screens */
-}
-
-/* Extra-small phones */
-@media (max-width: 400px) {
-  .dashboard__header {
-    padding: 12px;
-  }
-  .dashboard__subtitle {
-    display: none;
-  } /* save space */
-  .theme-toggle {
-    gap: 8px;
-    padding: 8px 10px;
-  }
-  .table {
-    min-width: 380px;
   }
 }
 
-/* Better motion for battery-saver / a11y */
-@media (prefers-reduced-motion: reduce) {
-  .card,
-  .theme-toggle,
-  .card__shine,
-  .back-btn {
-    transition: none !important;
-  }
-}
-
-/* ========== Charts grid responsive ========== */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-/* Tablets */
-@media (max-width: 1024px) {
-  .charts-grid {
-    grid-template-columns: 1fr; /* stack charts */
-  }
-  .chart-wrap {
-    padding: 10px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .charts-grid {
-    gap: 1rem;
-  }
-  .chart-wrap canvas {
-    max-height: 280px; /* smaller pie on phones */
-  }
-  .panel__title {
-    font-size: 0.95rem;
-  }
-}
-
-/* Extra-small phones */
+/* ≤480: very small phones */
 @media (max-width: 480px) {
   .charts-grid {
     margin-top: 1.2rem;
@@ -608,5 +694,22 @@ body {
   }
   .chart-wrap canvas {
     max-height: 220px;
+  }
+}
+
+/* ≤400: micro screens */
+@media (max-width: 400px) {
+  .dashboard__header {
+    padding: 12px;
+  }
+  .dashboard__subtitle {
+    display: none;
+  }
+  .theme-toggle {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .table {
+    min-width: 380px;
   }
 }
