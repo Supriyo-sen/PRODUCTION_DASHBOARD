@@ -2,6 +2,8 @@
 import React from "react";
 
 export default function DataTable({ rows = [] }) {
+  console.log(rows);
+
   return (
     <div className="table-wrap">
       <table className="table">

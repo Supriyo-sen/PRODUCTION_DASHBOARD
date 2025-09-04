@@ -1,8 +1,12 @@
+// App.jsx
 import React, { useEffect, useState } from "react";
 import "./index.css";
+
 import ThemeToggle from "./components/ThemeToggle";
 import CardGrid from "./components/CardGrid";
 import SectionView from "./components/SectionView";
+
+import { DEPT_SHEETS } from "./utils/sheetsConfig";
 import { fetchSheetData, formatDateToISO } from "./utils/googleSheets";
 
 export default function App() {
@@ -18,11 +22,8 @@ export default function App() {
     },
   ];
 
+  // THEME
   const [theme, setTheme] = useState("dark");
-  const [route, setRoute] = useState({ page: "home", key: null });
-  const [data, setData] = useState({});
-
-  // init theme
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     const initial =
@@ -34,7 +35,6 @@ export default function App() {
     setTheme(initial);
     document.documentElement.setAttribute("data-theme", initial);
   }, []);
-
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
@@ -42,14 +42,29 @@ export default function App() {
     localStorage.setItem("theme", next);
   };
 
-  // simple navigation
-  const openSection = async (key) => {
-    const range = `CUSTOMIZED`; // Match sheet tab name
-    const sheetData = await fetchSheetData(range);
+  // ROUTING + DATA
+  const [route, setRoute] = useState({ page: "home", key: null }); // {home|section, deptKey}
+  const [data, setData] = useState({}); // { [deptKey]: rowsByDate }
+  const [loading, setLoading] = useState(null); // deptKey that's loading
+  const [error, setError] = useState(null); // string
 
-    // Expecting header like:
-    // DATE | MACHINE | SHIFT | TARGET | ACTUAL | EXTRA/LESS | PERCENT | ITEMS
-    const formattedData = sheetData.slice(1).reduce((acc, row) => {
+  const activeSection = sections.find((s) => s.key === route.key);
+
+  // OPEN A SECTION → fetch that sheet/tab and normalize rows
+  const openSection = async (key) => {
+    const cfg = DEPT_SHEETS[key];
+    if (!cfg) {
+      setError(`No sheet config found for "${key}".`);
+      return;
+    }
+
+    setError(null);
+    setLoading(key);
+
+    const sheetData = await fetchSheetData(cfg.sheetId, cfg.range);
+
+    // Expect header row: DATE | MACHINE | SHIFT | TARGET | ACTUAL | EXTRA/LESS | PERCENT | ITEMS
+    const rowsByDate = (sheetData || []).slice(1).reduce((acc, row) => {
       const [
         date,
         machine,
@@ -61,11 +76,11 @@ export default function App() {
         items,
       ] = row;
 
-      const formattedDate = formatDateToISO(date);
+      const iso = formatDateToISO(date);
+      if (!iso) return acc;
 
-      acc[formattedDate] = acc[formattedDate] || [];
-      acc[formattedDate].push({
-        date: formattedDate,
+      (acc[iso] ||= []).push({
+        date: iso,
         machine: machine || "",
         shift: shift || "",
         totalTarget: Number(totalTarget) || 0,
@@ -77,27 +92,32 @@ export default function App() {
       return acc;
     }, {});
 
-    setData((prev) => ({ ...prev, [key]: formattedData }));
+    setData((prev) => ({ ...prev, [key]: rowsByDate }));
+    setLoading(null);
     setRoute({ page: "section", key });
   };
 
-  const goHome = () => setRoute({ page: "home", key: null });
+  const goHome = () => {
+    setRoute({ page: "home", key: null });
+    setError(null);
+  };
 
   return (
     <div className="dashboard">
+      {/* HEADER */}
       <header className="dashboard__header">
         <div className="brand">
           <div className="brand__dot" aria-hidden />
           <h1 className="dashboard__title">
             {route.page === "home"
               ? "REPORT OF PRODUCTION"
-              : sections.find((s) => s.key === route.key)?.label}
+              : activeSection?.label}
           </h1>
         </div>
-
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </header>
 
+      {/* MAIN */}
       {route.page === "home" ? (
         <>
           <p className="dashboard__subtitle">
@@ -107,15 +127,20 @@ export default function App() {
             <CardGrid sections={sections} onOpen={openSection} />
           </main>
         </>
+      ) : loading === route.key ? (
+        <p className="dashboard__subtitle">Loading {activeSection?.label}…</p>
+      ) : error ? (
+        <p className="dashboard__subtitle neg">{error}</p>
       ) : (
         <SectionView
-          title={sections.find((s) => s.key === route.key)?.label || ""}
-          emoji={sections.find((s) => s.key === route.key)?.emoji || ""}
+          title={activeSection?.label || ""}
+          emoji={activeSection?.emoji || ""}
           rowsByDate={data[route.key] || {}}
           onBack={goHome}
         />
       )}
 
+      {/* FOOTER */}
       <footer className="dashboard__footer">
         <small>
           © {new Date().getFullYear()} Supra Pens • Production Dashboard

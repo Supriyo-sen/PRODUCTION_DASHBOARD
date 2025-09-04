@@ -1,23 +1,40 @@
-const SHEET_ID = "1CxNyZLPEJ9NEPJ1xs5VkExKAgvEOr9SY5WgkrnjdvU0"; // Replace with your Google Sheet ID
+// const SHEET_ID = "1CxNyZLPEJ9NEPJ1xs5VkExKAgvEOr9SY5WgkrnjdvU0"; // Replace with your Google Sheet ID
 const API_KEY = "AIzaSyDf6yf24YiBFjU-M9HrvfZEkmOKsIgqnqo"; // Replace with your API key
 
-export async function fetchSheetData(range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+// utils/googleSheets.js
+// utils/googleSheets.js
+// move to env on server for production
+
+export async function fetchSheetData(sheetId, range) {
+  console.log(range);
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(
+    range
+  )}?key=${API_KEY}`;
   try {
-    const response = await fetch(url);
-    const data = await response.json();
+    const res = await fetch(url);
+    const data = await res.json();
     return data.values || [];
-  } catch (error) {
-    console.error("Error fetching data from Google Sheets:", error);
+  } catch (err) {
+    console.error("Sheets fetch error:", err);
     return [];
   }
 }
 
-// Utility function to convert date format
-export function formatDateToISO(dateString) {
-  const [day, month, year] = dateString.split("/");
-  return `${year}-${month}-${day}`; // Convert to yyyy-MM-dd
-}
+/** Robust date → ISO (YYYY-MM-DD).
+ * Accepts: "31/07/2025", "31-07-2025", "2025-07-31"
+ */
+export function formatDateToISO(d) {
+  if (!d) return "";
+  const s = String(d).trim();
 
-// Example usage:
-// const formattedDate = formatDateToISO("31/07/2025");
+  // YYYY-MM-DD
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+
+  // DD/MM/YYYY or DD-MM-YYYY
+  m = s.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+
+  return s; // fallback
+}
